@@ -1,6 +1,6 @@
 # SubAdvise API
 
-SubAdvise is a Spring Boot REST API for subscription tracking and currency conversion. It also contains Target and Expense persistence models and data-access components; public Target and Expense endpoints are not currently exposed.
+SubAdvise is a Spring Boot REST API for subscription tracking and currency conversion. It also contains Target and Expense persistence models and data-access components.
 
 ## Features
 
