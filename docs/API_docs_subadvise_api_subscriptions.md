@@ -50,6 +50,9 @@ ZAR, ZMW, ZWG
 | **POST**   | `/api/subscriptions`                           | Create a new subscription                             |
 | **PATCH**  | `/api/subscriptions/{id}`                      | Update an existing subscription partially             |
 | **DELETE** | `/api/subscriptions/{id}`                      | Delete a subscription by its unique ID                |
+| **DELETE** | `/api/data/subscriptions`                      | Delete all subscriptions                              |
+| **DELETE** | `/api/data/targets`                            | Delete all targets and expenses linked to them         |
+| **DELETE** | `/api/data/subscriptions-and-targets`           | Delete all subscriptions, targets, and expenses linked to targets |
 | **POST**   | `/api/subscriptions/{id}/convert`              | Convert and save a subscription in another currency   |
 | **GET**    | `/api/subscriptions/filter/subscription-date`  | Filter subscriptions by a specific subscription date  |
 | **GET**    | `/api/subscriptions/filter/renewal-date`       | Filter subscriptions by a specific renewal date       |
@@ -205,7 +208,31 @@ When changing `currency` through this endpoint, include a replacement `subscript
 
 ---
 
-### 6. Filter by Subscription Date
+### 6. Purge Subscriptions
+
+* **URL:** `DELETE /api/data/subscriptions`
+* **Description:** Permanently deletes all subscriptions. Targets, expenses, and expense color thresholds are not affected.
+* **Response Status:** `204 No Content`
+
+---
+
+### 7. Purge Targets
+
+* **URL:** `DELETE /api/data/targets`
+* **Description:** Permanently deletes all targets and their linked expenses. Subscriptions and expense color thresholds are not affected.
+* **Response Status:** `204 No Content`
+
+---
+
+### 8. Purge Subscriptions and Targets
+
+* **URL:** `DELETE /api/data/subscriptions-and-targets`
+* **Description:** Permanently deletes all subscriptions and targets. Expenses are deleted first because each expense references a target. Expense color thresholds are not affected.
+* **Response Status:** `204 No Content`
+
+---
+
+### 9. Filter by Subscription Date
 
 * **URL:** `GET /api/subscriptions/filter/subscription-date`
 * **Description:** Retrieves all subscriptions matching a exact subscription date.
@@ -217,7 +244,7 @@ When changing `currency` through this endpoint, include a replacement `subscript
 
 ---
 
-### 7. Convert a Subscription to Another Currency
+### 10. Convert a Subscription to Another Currency
 
 * **URL:** `POST /api/subscriptions/{id}/convert?to=EUR`
 * **Description:** Converts the saved subscription price from its current currency to the requested currency, then updates the subscription's stored price and currency.
@@ -261,7 +288,7 @@ The conversion uses the current stored subscription price and currency. The data
 
 ---
 
-### 8. Filter by Renewal Date
+### 11. Filter by Renewal Date
 
 * **URL:** `GET /api/subscriptions/filter/renewal-date`
 * **Description:** Retrieves all subscriptions matching an exact renewal date.
@@ -273,7 +300,7 @@ The conversion uses the current stored subscription price and currency. The data
 
 ---
 
-### 9. Filter by Renewal Date Range
+### 12. Filter by Renewal Date Range
 
 * **URL:** `GET /api/subscriptions/filter/renewal-range`
 * **Description:** Retrieves subscriptions whose renewal dates fall between a specified start and end date.
@@ -287,7 +314,7 @@ The conversion uses the current stored subscription price and currency. The data
 
 ---
 
-### 10. Filter by Subscription Date Range
+### 13. Filter by Subscription Date Range
 
 * **URL:** `GET /api/subscriptions/filter/subscription-range`
 * **Description:** Retrieves subscriptions whose subscription start dates fall between a specified start and end date.
@@ -301,7 +328,7 @@ The conversion uses the current stored subscription price and currency. The data
 
 ---
 
-### 11. Convert Currency
+### 14. Convert Currency
 
 * **URL:** `GET /api/currency/convert`
 * **Description:** Converts an amount from one currency to another using the latest available ExchangeRate-API rates.
