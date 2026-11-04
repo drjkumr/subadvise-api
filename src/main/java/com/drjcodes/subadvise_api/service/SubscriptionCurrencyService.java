@@ -29,15 +29,26 @@ public class SubscriptionCurrencyService {
     }
 
     public SubscriptionCurrencyConversionResponseDto convertSubscriptionCurrency(UUID subscriptionId, Currency to) {
-        Subscription subscription = subscriptionRepository.findById(subscriptionId)
+        Subscription existingSubscription = subscriptionRepository.findById(subscriptionId)
                 .orElseThrow(() -> new SubscriptionNotFoundException(subscriptionId));
 
         CurrencyConversionResponseDto conversion = currencyConversionService.convert(
-                subscription.getSubscriptionPrice(), subscription.getCurrency(), to);
-        subscription.setSubscriptionPrice(conversion.getConvertedAmount());
-        subscription.setCurrency(to);
+                existingSubscription.getSubscriptionPrice(), existingSubscription.getCurrency(), to);
 
-        Subscription savedSubscription = subscriptionRepository.save(subscription);
+        existingSubscription.setSubscriptionPrice(conversion.getConvertedAmount());
+        existingSubscription.setCurrency(to);
+
+        Subscription replacementSubscription = Subscription.builder()
+                .subscriptionId(existingSubscription.getSubscriptionId())
+                .subscriptionName(existingSubscription.getSubscriptionName())
+                .subscriptionDate(existingSubscription.getSubscriptionDate())
+                .renewalDate(existingSubscription.getRenewalDate())
+                .subscriptionPrice(existingSubscription.getSubscriptionPrice())
+                .currency(existingSubscription.getCurrency())
+                .build();
+
+        subscriptionRepository.delete(existingSubscription);
+        Subscription savedSubscription = subscriptionRepository.save(replacementSubscription);
         SubscriptionCurrencyConversionResponseDto response = new SubscriptionCurrencyConversionResponseDto();
         response.setSubscription(subscriptionMapper.toResponseDto(savedSubscription));
         response.setConversion(conversion);

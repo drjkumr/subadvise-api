@@ -61,8 +61,10 @@ class SubscriptionCurrencyServiceTest {
                 when(subscriptionRepository.findById(id)).thenReturn(Optional.of(subscription));
                 when(currencyConversionService.convert(new BigDecimal("10.00"), Currency.USD, Currency.EUR))
                                 .thenReturn(conversion);
-                when(subscriptionRepository.save(subscription)).thenReturn(subscription);
-                when(subscriptionMapper.toResponseDto(subscription)).thenReturn(updatedDto);
+                when(subscriptionRepository.save(org.mockito.ArgumentMatchers.any(Subscription.class)))
+                                .thenAnswer(invocation -> invocation.getArgument(0));
+                when(subscriptionMapper.toResponseDto(org.mockito.ArgumentMatchers.any(Subscription.class)))
+                                .thenReturn(updatedDto);
 
                 SubscriptionCurrencyConversionResponseDto result = subscriptionCurrencyService
                                 .convertSubscriptionCurrency(id,
@@ -72,7 +74,11 @@ class SubscriptionCurrencyServiceTest {
                 assertEquals(Currency.EUR, subscription.getCurrency());
                 assertSame(updatedDto, result.getSubscription());
                 assertSame(conversion, result.getConversion());
-                verify(subscriptionRepository).save(subscription);
+                verify(subscriptionRepository).delete(subscription);
+                verify(subscriptionRepository).save(org.mockito.ArgumentMatchers.argThat(saved ->
+                                saved.getSubscriptionId().equals(id)
+                                                && saved.getSubscriptionPrice().compareTo(new BigDecimal("9.20")) == 0
+                                                && saved.getCurrency() == Currency.EUR));
         }
 
         @Test
