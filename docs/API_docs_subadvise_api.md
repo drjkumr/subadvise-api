@@ -45,6 +45,7 @@ ZAR, ZMW, ZWG
 
 | Method     | Endpoint                                       | Description                                                       |
 | ---------- | ---------------------------------------------- | ----------------------------------------------------------------- |
+| **GET** | `/api/health` | Check whether the API is available |
 | **GET**    | `/api/subscriptions`                           | Retrieve all subscriptions                                        |
 | **GET**    | `/api/subscriptions/{id}`                      | Retrieve a subscription by its unique ID                          |
 | **POST**   | `/api/subscriptions`                           | Create a new subscription                                         |
@@ -63,6 +64,19 @@ ZAR, ZMW, ZWG
 ---
 
 ## Detailed Endpoint Reference
+
+### Health Check
+
+* **URL:** `GET /api/health`
+* **Description:** Confirms that the API is available.
+* **Response Status:** `200 OK`
+* **Response Body:**
+
+```json
+{
+  "status": "UP"
+}
+```
 
 ### 1. Get All Subscriptions
 

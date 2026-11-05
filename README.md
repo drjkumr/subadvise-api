@@ -81,6 +81,7 @@ Base URL: `http://localhost:7071/api/subscriptions`
 
 | Method   | Path                                                                                   | Purpose                                        |
 | -------- | -------------------------------------------------------------------------------------- | ---------------------------------------------- |
+| `GET` | `/api/health` | Check whether the API is available |
 | `GET`    | `/api/subscriptions`                                                                   | List subscriptions                             |
 | `GET`    | `/api/subscriptions/{id}`                                                              | Get a subscription; returns `404` if missing   |
 | `POST`   | `/api/subscriptions`                                                                   | Create a subscription                          |
@@ -91,6 +92,16 @@ Base URL: `http://localhost:7071/api/subscriptions`
 | `GET`    | `/api/subscriptions/filter/renewal-date?date=YYYY-MM-DD`                               | Match renewal date                             |
 | `GET`    | `/api/subscriptions/filter/renewal-range?startDate=YYYY-MM-DD&endDate=YYYY-MM-DD`      | Match renewal date range                       |
 | `GET`    | `/api/subscriptions/filter/subscription-range?startDate=YYYY-MM-DD&endDate=YYYY-MM-DD` | Match subscription date range                  |
+
+### Health Check
+
+`GET /api/health` returns `200 OK` with:
+
+```json
+{
+  "status": "UP"
+}
+```
 
 Create example:
 
