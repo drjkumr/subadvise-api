@@ -41,6 +41,11 @@ public class SubscriptionController {
         return subscriptionService.getAllSubscriptions();
     }
 
+    @GetMapping("/search")
+    public List<SubscriptionResponseDto> searchSubscriptionsByName(@RequestParam String name) {
+        return subscriptionService.searchSubscriptionsByName(name);
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<SubscriptionResponseDto> getSubscriptionById(@PathVariable UUID id) {
         return subscriptionService.getSubscriptionById(id)

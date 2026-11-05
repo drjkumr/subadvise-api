@@ -83,6 +83,7 @@ Base URL: `http://localhost:7071/api/subscriptions`
 | -------- | -------------------------------------------------------------------------------------- | ---------------------------------------------- |
 | `GET` | `/api/health` | Check whether the API is available |
 | `GET`    | `/api/subscriptions`                                                                   | List subscriptions                             |
+| `GET`    | `/api/subscriptions/search?name=netflix`                                               | Search names by case-insensitive substring     |
 | `GET`    | `/api/subscriptions/{id}`                                                              | Get a subscription; returns `404` if missing   |
 | `POST`   | `/api/subscriptions`                                                                   | Create a subscription                          |
 | `PATCH`  | `/api/subscriptions/{id}`                                                              | Partially update a subscription                |

@@ -37,6 +37,16 @@ public class SubscriptionService {
                 .map(subscriptionMapper::toResponseDto);
     }
 
+    public List<SubscriptionResponseDto> searchSubscriptionsByName(String name) {
+        if (name == null || name.isBlank()) {
+            throw new IllegalArgumentException("name must not be blank");
+        }
+
+        return subscriptionRepository.findBySubscriptionNameContainingIgnoreCase(name.trim()).stream()
+                .map(subscriptionMapper::toResponseDto)
+                .collect(Collectors.toList());
+    }
+
     public SubscriptionResponseDto saveSubscription(SubscriptionRequestDto requestDto) {
         Subscription subscription = subscriptionMapper.toEntity(requestDto);
         Subscription savedSubscription = subscriptionRepository.save(subscription);

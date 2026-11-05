@@ -72,6 +72,20 @@ class SubscriptionRepositoryTest {
                                 .anyMatch(item -> item.getSubscriptionId().equals(endBoundary.getSubscriptionId())));
         }
 
+        @Test
+        void findsSubscriptionsByCaseInsensitiveNameFragment() {
+                Subscription matching = subscriptionRepository.saveAndFlush(subscription(
+                                "Netflix Premium", LocalDate.of(2025, 1, 10), LocalDate.of(2025, 2, 10)));
+                subscriptionRepository.saveAndFlush(subscription(
+                                "Music service", LocalDate.of(2025, 1, 11), LocalDate.of(2025, 2, 11)));
+
+                List<Subscription> results = subscriptionRepository
+                                .findBySubscriptionNameContainingIgnoreCase("FLIX");
+
+                assertEquals(1, results.size());
+                assertEquals(matching.getSubscriptionId(), results.get(0).getSubscriptionId());
+        }
+
         private Subscription subscription(String name, LocalDate subscriptionDate, LocalDate renewalDate) {
                 return Subscription.builder()
                                 .subscriptionName(name)

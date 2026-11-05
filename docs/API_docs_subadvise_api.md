@@ -47,6 +47,7 @@ ZAR, ZMW, ZWG
 | ---------- | ---------------------------------------------- | ----------------------------------------------------------------- |
 | **GET** | `/api/health` | Check whether the API is available |
 | **GET**    | `/api/subscriptions`                           | Retrieve all subscriptions                                        |
+| **GET**    | `/api/subscriptions/search?name=netflix`        | Search subscription names by case-insensitive substring           |
 | **GET**    | `/api/subscriptions/{id}`                      | Retrieve a subscription by its unique ID                          |
 | **POST**   | `/api/subscriptions`                           | Create a new subscription                                         |
 | **PATCH**  | `/api/subscriptions/{id}`                      | Update an existing subscription partially                         |
@@ -96,8 +97,16 @@ ZAR, ZMW, ZWG
     "currency": "USD"
   }
 ]
-
 ```
+
+---
+
+### Search Subscriptions by Name
+
+* **URL:** `GET /api/subscriptions/search?name=netflix`
+* **Description:** Returns subscriptions whose names contain the supplied text, ignoring case. The `name` parameter must not be blank.
+* **Response Status:** `200 OK`
+* **Response Body:** A list of matching subscription objects; an empty list is returned when there are no matches.
 
 ---
 

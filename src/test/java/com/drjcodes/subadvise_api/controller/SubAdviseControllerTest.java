@@ -62,6 +62,27 @@ class SubAdviseControllerTest {
         }
 
         @Test
+        void searchesSubscriptionsByName() throws Exception {
+                when(subscriptionService.searchSubscriptionsByName("Netflix")).thenReturn(List.of(response()));
+
+                mockMvc.perform(get("/api/subscriptions/search").param("name", "Netflix"))
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$[0].subscriptionName").value("Streaming"));
+
+                verify(subscriptionService).searchSubscriptionsByName("Netflix");
+        }
+
+        @Test
+        void rejectsBlankSubscriptionSearchName() throws Exception {
+                when(subscriptionService.searchSubscriptionsByName(" "))
+                                .thenThrow(new IllegalArgumentException("name must not be blank"));
+
+                mockMvc.perform(get("/api/subscriptions/search").param("name", " "))
+                                .andExpect(status().isBadRequest())
+                                .andExpect(jsonPath("$.error").value("name must not be blank"));
+        }
+
+        @Test
         void getsSubscriptionByIdOrReturnsNotFound() throws Exception {
                 UUID id = UUID.randomUUID();
                 when(subscriptionService.getSubscriptionById(id)).thenReturn(Optional.of(response()));

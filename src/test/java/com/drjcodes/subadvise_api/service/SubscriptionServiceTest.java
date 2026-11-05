@@ -80,6 +80,30 @@ class SubscriptionServiceTest {
     }
 
     @Test
+    void searchSubscriptionsByNameTrimsQueryAndReturnsMappedResults() {
+        Subscription subscription = mock(Subscription.class);
+        SubscriptionResponseDto response = mock(SubscriptionResponseDto.class);
+        when(subscriptionRepository.findBySubscriptionNameContainingIgnoreCase("Netflix")).thenReturn(List.of(subscription));
+        when(subscriptionMapper.toResponseDto(subscription)).thenReturn(response);
+
+        List<SubscriptionResponseDto> result = subscriptionService.searchSubscriptionsByName("  Netflix  ");
+
+        assertEquals(List.of(response), result);
+        verify(subscriptionRepository).findBySubscriptionNameContainingIgnoreCase("Netflix");
+        verify(subscriptionMapper).toResponseDto(subscription);
+    }
+
+    @Test
+    void searchSubscriptionsByNameRejectsBlankQuery() {
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> subscriptionService.searchSubscriptionsByName("  "));
+
+        assertEquals("name must not be blank", exception.getMessage());
+        verify(subscriptionRepository, never()).findBySubscriptionNameContainingIgnoreCase(org.mockito.ArgumentMatchers.any());
+    }
+
+    @Test
     void saveSubscriptionMapsAndSavesRequest() {
         SubscriptionRequestDto request = mock(SubscriptionRequestDto.class);
         Subscription subscription = mock(Subscription.class);

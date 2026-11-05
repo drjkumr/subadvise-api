@@ -17,4 +17,6 @@ public interface SubscriptionRepository extends JpaRepository<Subscription, UUID
 
     List<Subscription> findBySubscriptionDateBetween(LocalDate startDate, LocalDate endDate);
 
+    List<Subscription> findBySubscriptionNameContainingIgnoreCase(String subscriptionName);
+
 }
