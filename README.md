@@ -119,7 +119,7 @@ Content-Type: application/json
 }
 ```
 
-`currency` is required when creating a subscription and must be an uppercase code from the `Currency` enum in `src/main/java/com/drjcodes/subadvise_api/enums/Currency.java`. Enums are in the `enums` package and application exceptions are in the `exception` package. Subscription responses include the currency. For `PATCH`, omitted fields (including `currency`) are left unchanged. If changing currency with `PATCH`, provide a replacement `subscriptionPrice` too; use the conversion endpoint to convert the existing amount.
+`currency` is required when creating a subscription and must be an uppercase code from the `Currency` enum in `src/main/java/com/drjcodes/subadvise_api/enums/Currency.java`. Enums are in the `enums` package and application exceptions are in the `exception` package. Subscription responses include the currency and a lowercase `color`. To choose the color, the API converts every saved subscription price to USD internally, then applies the shared expense-color thresholds to each subscription's percentage of the USD total. Prices are compared as stored; no monthly normalization is performed. Converted amounts and percentages are not returned. Because the color depends on all saved subscriptions, a missing ExchangeRate-API rate for any saved currency can prevent a subscription response (`422`); if current rates are unavailable, the response is `503`. For `PATCH`, omitted fields (including `currency`) are left unchanged. If changing currency with `PATCH`, provide a replacement `subscriptionPrice` too; use the conversion endpoint to convert the existing amount.
 
 ## Expense API
 
@@ -131,7 +131,7 @@ Content-Type: application/json
 | `GET`  | `/api/expenses/color-thresholds`          | Read the configured color thresholds                        |
 | `PUT`  | `/api/expenses/color-thresholds`          | Replace the configured color thresholds                     |
 
-Monthly totals use the linked target's `endDate`, including the last day of the requested month (28, 29, 30, or 31). Amounts are grouped by currency and are never added across currencies. Each expense's percentage is its actual amount divided by that month's total in the same currency. Color thresholds are minimum percentages, must descend from red to green, and are shared application-wide. Defaults are red `50`, orange `30`, yellow `15`, lime `5`, and green `0`.
+Monthly totals use the linked target's `endDate`, including the last day of the requested month (28, 29, 30, or 31). Amounts are grouped by currency and are never added across currencies. Each expense's percentage is its actual amount divided by that month's total in the same currency. Subscription colors use the same application-wide minimum thresholds against each subscription's share of the USD-converted total, without monthly normalization. For both expenses and subscriptions, the API selects the first threshold met in red-to-green order. Defaults are red `50`, orange `30`, yellow `15`, lime `5`, and green `0`.
 
 Expense differences are calculated as `actualExpense - targetExpense`.
 

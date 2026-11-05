@@ -41,12 +41,18 @@ class SubscriptionCurrencyServiceTest {
         @Mock
         private CurrencyConversionService currencyConversionService;
 
+        @Mock
+        private SubscriptionColorService subscriptionColorService;
+
         private SubscriptionCurrencyService subscriptionCurrencyService;
 
         @BeforeEach
         void setUp() {
                 subscriptionCurrencyService = new SubscriptionCurrencyService(
-                                subscriptionRepository, subscriptionMapper, currencyConversionService);
+                                subscriptionRepository,
+                                subscriptionMapper,
+                                currencyConversionService,
+                                subscriptionColorService);
         }
 
         @Test

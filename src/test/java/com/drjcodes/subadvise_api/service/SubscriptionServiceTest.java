@@ -36,11 +36,17 @@ class SubscriptionServiceTest {
     @Mock
     private SubscriptionMapper subscriptionMapper;
 
+    @Mock
+    private SubscriptionColorService subscriptionColorService;
+
     private SubscriptionService subscriptionService;
 
     @BeforeEach
     void setUp() {
-        subscriptionService = new SubscriptionService(subscriptionRepository, subscriptionMapper);
+        subscriptionService = new SubscriptionService(
+                subscriptionRepository,
+                subscriptionMapper,
+                subscriptionColorService);
     }
 
     @Test

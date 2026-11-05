@@ -1,12 +1,13 @@
 package com.drjcodes.subadvise_api.service;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.drjcodes.subadvise_api.dto.SubscriptionRequestDto;
 import com.drjcodes.subadvise_api.dto.SubscriptionResponseDto;
@@ -20,21 +21,24 @@ public class SubscriptionService {
 
     private final SubscriptionRepository subscriptionRepository;
     private final SubscriptionMapper subscriptionMapper;
+    private final SubscriptionColorService subscriptionColorService;
 
-    SubscriptionService(SubscriptionRepository subscriptionRepository, SubscriptionMapper subscriptionMapper) {
+    SubscriptionService(
+            SubscriptionRepository subscriptionRepository,
+            SubscriptionMapper subscriptionMapper,
+            SubscriptionColorService subscriptionColorService) {
         this.subscriptionRepository = subscriptionRepository;
         this.subscriptionMapper = subscriptionMapper;
+        this.subscriptionColorService = subscriptionColorService;
     }
 
     public List<SubscriptionResponseDto> getAllSubscriptions() {
-        return subscriptionRepository.findAll().stream()
-                .map(subscriptionMapper::toResponseDto)
-                .collect(Collectors.toList());
+        return toResponseDtos(subscriptionRepository.findAll());
     }
 
     public Optional<SubscriptionResponseDto> getSubscriptionById(UUID subscriptionId) {
         return subscriptionRepository.findById(subscriptionId)
-                .map(subscriptionMapper::toResponseDto);
+                .map(this::toResponseDto);
     }
 
     public List<SubscriptionResponseDto> searchSubscriptionsByName(String name) {
@@ -42,21 +46,21 @@ public class SubscriptionService {
             throw new IllegalArgumentException("name must not be blank");
         }
 
-        return subscriptionRepository.findBySubscriptionNameContainingIgnoreCase(name.trim()).stream()
-                .map(subscriptionMapper::toResponseDto)
-                .collect(Collectors.toList());
+        return toResponseDtos(subscriptionRepository.findBySubscriptionNameContainingIgnoreCase(name.trim()));
     }
 
+    @Transactional
     public SubscriptionResponseDto saveSubscription(SubscriptionRequestDto requestDto) {
         Subscription subscription = subscriptionMapper.toEntity(requestDto);
         Subscription savedSubscription = subscriptionRepository.save(subscription);
-        return subscriptionMapper.toResponseDto(savedSubscription);
+        return toResponseDto(savedSubscription);
     }
 
     public void deleteSubscription(UUID id) {
         subscriptionRepository.deleteById(id);
     }
 
+    @Transactional
     public SubscriptionResponseDto updateSubscription(UUID id, SubscriptionRequestDto updatedDto) {
         Subscription existingSubscription = subscriptionRepository.findById(id)
                 .orElseThrow(() -> new SubscriptionNotFoundException(id));
@@ -85,31 +89,38 @@ public class SubscriptionService {
         }
 
         Subscription savedSubscription = subscriptionRepository.save(existingSubscription);
-        return subscriptionMapper.toResponseDto(savedSubscription);
+        return toResponseDto(savedSubscription);
     }
 
     public List<SubscriptionResponseDto> getSubscriptionsBySubscriptionDate(LocalDate subscriptionDate) {
-        return subscriptionRepository.findBySubscriptionDate(subscriptionDate).stream()
-                .map(subscriptionMapper::toResponseDto)
-                .collect(Collectors.toList());
+        return toResponseDtos(subscriptionRepository.findBySubscriptionDate(subscriptionDate));
     }
 
     public List<SubscriptionResponseDto> getSubscriptionsByRenewalDate(LocalDate renewalDate) {
-        return subscriptionRepository.findByRenewalDate(renewalDate).stream()
-                .map(subscriptionMapper::toResponseDto)
-                .collect(Collectors.toList());
+        return toResponseDtos(subscriptionRepository.findByRenewalDate(renewalDate));
     }
 
     public List<SubscriptionResponseDto> getSubscriptionsByRenewalDateBetween(LocalDate startDate, LocalDate endDate) {
-        return subscriptionRepository.findByRenewalDateBetween(startDate, endDate).stream()
-                .map(subscriptionMapper::toResponseDto)
-                .collect(Collectors.toList());
+        return toResponseDtos(subscriptionRepository.findByRenewalDateBetween(startDate, endDate));
     }
 
     public List<SubscriptionResponseDto> getSubscriptionsBySubscriptionDateBetween(LocalDate startDate,
             LocalDate endDate) {
-        return subscriptionRepository.findBySubscriptionDateBetween(startDate, endDate).stream()
+        return toResponseDtos(subscriptionRepository.findBySubscriptionDateBetween(startDate, endDate));
+    }
+
+    private List<SubscriptionResponseDto> toResponseDtos(List<Subscription> subscriptions) {
+        List<SubscriptionResponseDto> responseDtos = new ArrayList<>(subscriptions.size());
+        subscriptions.stream()
                 .map(subscriptionMapper::toResponseDto)
-                .collect(Collectors.toList());
+                .forEach(responseDtos::add);
+        subscriptionColorService.applyColors(responseDtos);
+        return responseDtos;
+    }
+
+    private SubscriptionResponseDto toResponseDto(Subscription subscription) {
+        SubscriptionResponseDto responseDto = subscriptionMapper.toResponseDto(subscription);
+        subscriptionColorService.applyColors(List.of(responseDto));
+        return responseDto;
     }
 }

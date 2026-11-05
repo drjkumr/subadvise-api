@@ -147,7 +147,7 @@ public class ExpenseService {
         return totals;
     }
 
-    private ExpenseColor classify(BigDecimal percentage, Map<ExpenseColor, BigDecimal> thresholds) {
+    ExpenseColor classify(BigDecimal percentage, Map<ExpenseColor, BigDecimal> thresholds) {
         for (ExpenseColor color : ExpenseColor.values()) {
             if (percentage.compareTo(thresholds.get(color)) >= 0) {
                 return color;
@@ -156,7 +156,7 @@ public class ExpenseService {
         return ExpenseColor.GREEN;
     }
 
-    private Map<ExpenseColor, BigDecimal> getThresholdMap() {
+    Map<ExpenseColor, BigDecimal> getThresholdMap() {
         Map<ExpenseColor, BigDecimal> thresholds = defaultThresholds();
         for (ExpenseColorThreshold threshold : thresholdRepository.findAll()) {
             thresholds.put(threshold.getColor(), threshold.getMinimumPercentage());

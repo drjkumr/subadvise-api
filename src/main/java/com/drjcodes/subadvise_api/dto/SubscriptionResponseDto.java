@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.util.UUID;
 import lombok.Data;
 import com.drjcodes.subadvise_api.enums.Currency;
+import com.drjcodes.subadvise_api.enums.ExpenseColor;
 
 @Data
 public class SubscriptionResponseDto {
@@ -14,4 +15,5 @@ public class SubscriptionResponseDto {
     private LocalDate renewalDate;
     private BigDecimal subscriptionPrice;
     private Currency currency;
+    private ExpenseColor color;
 }

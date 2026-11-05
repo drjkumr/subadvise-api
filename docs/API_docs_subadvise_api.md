@@ -6,7 +6,9 @@ This document outlines the available REST endpoints for managing **Subscriptions
 
 ### Currency
 
-Subscription prices use the `currency` property, represented as a three-letter ISO 4217 code. Include it when creating a subscription. It is returned in subscription responses. For partial updates, omit `currency` to keep the existing value.
+Subscription prices use the `currency` property, represented as a three-letter ISO 4217 code. Include it when creating a subscription. It is returned in subscription responses along with a lowercase `color`. To calculate the color, the API converts every saved subscription price to USD internally, sums those converted prices, and applies the configured expense-color thresholds to each subscription's percentage of that total. The stored prices are compared as-is, without monthly normalization. Converted amounts and percentages are not returned, and the stored subscription prices are never changed by this calculation. For partial updates, omit `currency` to keep the existing value.
+
+Subscription response examples use `"color": "red"` for illustration; the actual color depends on all saved subscriptions, current exchange rates, and the configured thresholds. A subscription endpoint that returns a subscription may return `422 Unprocessable Entity` if the exchange-rate feed does not support a currency used by any saved subscription, or `503 Service Unavailable` if current exchange rates cannot be retrieved.
 
 Accepted values:
 
@@ -94,7 +96,8 @@ ZAR, ZMW, ZWG
     "subscriptionDate": "2026-01-01",
     "renewalDate": "2027-01-01",
     "subscriptionPrice": 15.99,
-    "currency": "USD"
+    "currency": "USD",
+    "color": "red"
   }
 ]
 ```
@@ -132,7 +135,8 @@ ZAR, ZMW, ZWG
   "subscriptionDate": "2026-01-01",
   "renewalDate": "2027-01-01",
   "subscriptionPrice": 15.99,
-  "currency": "USD"
+  "currency": "USD",
+  "color": "red"
 }
 
 ```
@@ -168,7 +172,8 @@ When changing `currency` through this endpoint, include a replacement `subscript
   "subscriptionDate": "2026-06-01",
   "renewalDate": "2027-06-01",
   "subscriptionPrice": 9.99,
-  "currency": "USD"
+  "currency": "USD",
+  "color": "red"
 }
 
 ```
@@ -208,7 +213,8 @@ When changing `currency` through this endpoint, include a replacement `subscript
   "subscriptionDate": "2026-06-01",
   "renewalDate": "2027-06-01",
   "subscriptionPrice": 11.99,
-  "currency": "USD"
+  "currency": "USD",
+  "color": "red"
 }
 
 ```
@@ -292,7 +298,8 @@ When changing `currency` through this endpoint, include a replacement `subscript
     "subscriptionDate": "2026-06-01",
     "renewalDate": "2027-06-01",
     "subscriptionPrice": 9.18,
-    "currency": "EUR"
+    "currency": "EUR",
+    "color": "red"
   },
   "conversion": {
     "amount": 9.99,
@@ -408,7 +415,7 @@ The returned `difference` is calculated as `actualExpense - targetExpense`; posi
 * **Description:** Returns expense totals grouped by currency and a color classification for each expense. The target's `endDate` determines its month, including the month's final day (28, 29, 30, or 31).
 * **Response Status:** `200 OK`
 
-Each expense's percentage is calculated against the total for its currency in that month. Totals in different currencies are not combined.
+Each expense's percentage is calculated against the total for its currency in that month. Totals in different currencies are not combined. Subscription responses use the same configured thresholds against each subscription's share of the USD-converted total of all saved subscriptions, using current cached ExchangeRate-API rates. The API assigns the first color whose minimum percentage is met in red-to-green order. This calculation does not change stored prices or return the converted amounts or percentages.
 
 ### Configure Expense Colors
 
@@ -426,4 +433,4 @@ Each expense's percentage is calculated against the total for its currency in th
 }
 ```
 
-Thresholds must be between 0 and 100 and strictly descend from red to green. A monthly expense is assigned the first color whose minimum threshold is met. Defaults are `50`, `30`, `15`, `5`, and `0` respectively.
+Thresholds must be between 0 and 100 and strictly descend from red to green. A monthly expense or subscription is assigned the first color whose minimum threshold is met. Defaults are `50`, `30`, `15`, `5`, and `0` respectively.
