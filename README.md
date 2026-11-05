@@ -86,7 +86,7 @@ Base URL: `http://localhost:7071/api/subscriptions`
 | `GET`    | `/api/subscriptions/{id}`                                                              | Get a subscription; returns `404` if missing   |
 | `POST`   | `/api/subscriptions`                                                                   | Create a subscription                          |
 | `PATCH`  | `/api/subscriptions/{id}`                                                              | Partially update a subscription                |
-| `POST`   | `/api/subscriptions/{id}/convert?to=EUR`                                               | Convert and save its price in another currency |
+| `PATCH`  | `/api/subscriptions/{id}/convert?to=EUR`                                              | Convert and save its price in another currency |
 | `DELETE` | `/api/subscriptions/{id}`                                                              | Delete a subscription                          |
 | `GET`    | `/api/subscriptions/filter/subscription-date?date=YYYY-MM-DD`                          | Match subscription date                        |
 | `GET`    | `/api/subscriptions/filter/renewal-date?date=YYYY-MM-DD`                               | Match renewal date                             |
@@ -151,7 +151,7 @@ Responses include the `attributionUrl` required by ExchangeRate-API Open Access.
 To convert a saved subscription and persist its new price and currency, call:
 
 ```http
-POST /api/subscriptions/{id}/convert?to=EUR
+PATCH /api/subscriptions/{id}/convert?to=EUR
 ```
 
 No request body is required. The response contains the updated subscription and the conversion details, including rate timestamps and provider attribution. The stored price and currency are updated only after a current rate is successfully retrieved. A missing subscription returns `404`; unsupported rates return `422`; unavailable rates return `503`.

@@ -53,7 +53,7 @@ public class SubscriptionController {
         return subscriptionService.saveSubscription(requestDto);
     }
 
-    @PostMapping("/{id}/convert")
+    @PatchMapping("/{id}/convert")
     public SubscriptionCurrencyConversionResponseDto convertSubscriptionCurrency(
             @PathVariable UUID id,
             @RequestParam Currency to) {

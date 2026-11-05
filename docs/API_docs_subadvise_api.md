@@ -54,7 +54,7 @@ ZAR, ZMW, ZWG
 | **DELETE** | `/api/data/subscriptions`                      | Delete all subscriptions                                          |
 | **DELETE** | `/api/data/targets`                            | Delete all targets and expenses linked to them                    |
 | **DELETE** | `/api/data/subscriptions-and-targets`          | Delete all subscriptions, targets, and expenses linked to targets |
-| **POST**   | `/api/subscriptions/{id}/convert`              | Convert and save a subscription in another currency               |
+| **PATCH**  | `/api/subscriptions/{id}/convert`              | Convert and save a subscription in another currency               |
 | **GET**    | `/api/subscriptions/filter/subscription-date`  | Filter subscriptions by a specific subscription date              |
 | **GET**    | `/api/subscriptions/filter/renewal-date`       | Filter subscriptions by a specific renewal date                   |
 | **GET**    | `/api/subscriptions/filter/renewal-range`      | Filter subscriptions within a renewal date range                  |
@@ -136,7 +136,7 @@ ZAR, ZMW, ZWG
 * **Description:** Creates a new subscription record.
 * **Request Body (`SubscriptionRequestDto`):**
 
-When changing `currency` through this endpoint, include a replacement `subscriptionPrice`. To convert the existing price using current exchange rates instead, use `POST /api/subscriptions/{id}/convert?to=EUR`.
+When changing `currency` through this endpoint, include a replacement `subscriptionPrice`. To convert the existing price using current exchange rates instead, use `PATCH /api/subscriptions/{id}/convert?to=EUR`.
 
 ```json
 {
@@ -260,7 +260,7 @@ When changing `currency` through this endpoint, include a replacement `subscript
 
 ### 10. Convert a Subscription to Another Currency
 
-* **URL:** `POST /api/subscriptions/{id}/convert?to=EUR`
+* **URL:** `PATCH /api/subscriptions/{id}/convert?to=EUR`
 * **Description:** Converts the saved subscription price from its current currency to the requested currency, then updates the subscription's stored price and currency.
 * **Path Parameter:**
   * `id` (UUID) - The subscription to convert.

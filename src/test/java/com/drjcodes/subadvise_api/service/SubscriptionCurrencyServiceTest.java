@@ -74,7 +74,8 @@ class SubscriptionCurrencyServiceTest {
                 assertEquals(Currency.EUR, subscription.getCurrency());
                 assertSame(updatedDto, result.getSubscription());
                 assertSame(conversion, result.getConversion());
-                verify(subscriptionRepository).delete(subscription);
+                verify(subscriptionRepository, never()).delete(subscription);
+                verify(subscriptionRepository).save(subscription);
                 verify(subscriptionRepository).save(org.mockito.ArgumentMatchers.argThat(saved ->
                                 saved.getSubscriptionId().equals(id)
                                                 && saved.getSubscriptionPrice().compareTo(new BigDecimal("9.20")) == 0

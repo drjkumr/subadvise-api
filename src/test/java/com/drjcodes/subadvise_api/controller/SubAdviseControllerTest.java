@@ -120,15 +120,18 @@ class SubAdviseControllerTest {
                                 .thenReturn(response)
                                 .thenThrow(new SubscriptionNotFoundException(id));
 
-                mockMvc.perform(post("/api/subscriptions/{id}/convert", id).param("to", "EUR"))
+                mockMvc.perform(patch("/api/subscriptions/{id}/convert", id).param("to", "EUR"))
                                 .andExpect(status().isOk())
                                 .andExpect(jsonPath("$.subscription.subscriptionPrice").value(9.20))
                                 .andExpect(jsonPath("$.subscription.currency").value("EUR"))
                                 .andExpect(jsonPath("$.conversion.from").value("USD"))
                                 .andExpect(jsonPath("$.conversion.to").value("EUR"));
 
-                mockMvc.perform(post("/api/subscriptions/{id}/convert", id).param("to", "EUR"))
+                mockMvc.perform(patch("/api/subscriptions/{id}/convert", id).param("to", "EUR"))
                                 .andExpect(status().isNotFound());
+
+                mockMvc.perform(post("/api/subscriptions/{id}/convert", id).param("to", "EUR"))
+                                .andExpect(status().isMethodNotAllowed());
         }
 
         @Test

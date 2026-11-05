@@ -38,17 +38,7 @@ public class SubscriptionCurrencyService {
         existingSubscription.setSubscriptionPrice(conversion.getConvertedAmount());
         existingSubscription.setCurrency(to);
 
-        Subscription replacementSubscription = Subscription.builder()
-                .subscriptionId(existingSubscription.getSubscriptionId())
-                .subscriptionName(existingSubscription.getSubscriptionName())
-                .subscriptionDate(existingSubscription.getSubscriptionDate())
-                .renewalDate(existingSubscription.getRenewalDate())
-                .subscriptionPrice(existingSubscription.getSubscriptionPrice())
-                .currency(existingSubscription.getCurrency())
-                .build();
-
-        subscriptionRepository.delete(existingSubscription);
-        Subscription savedSubscription = subscriptionRepository.save(replacementSubscription);
+        Subscription savedSubscription = subscriptionRepository.save(existingSubscription);
         SubscriptionCurrencyConversionResponseDto response = new SubscriptionCurrencyConversionResponseDto();
         response.setSubscription(subscriptionMapper.toResponseDto(savedSubscription));
         response.setConversion(conversion);
