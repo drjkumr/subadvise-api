@@ -49,6 +49,7 @@ ZAR, ZMW, ZWG
 | ---------- | ---------------------------------------------- | ----------------------------------------------------------------- |
 | **GET** | `/api/health` | Check whether the API is available |
 | **GET**    | `/api/subscriptions`                           | Retrieve all subscriptions                                        |
+| **GET**    | `/api/subscriptions/monthly`                   | Total subscription prices renewing in a month, grouped by currency |
 | **GET**    | `/api/subscriptions/search?name=netflix`        | Search subscription names by case-insensitive substring           |
 | **GET**    | `/api/subscriptions/{id}`                      | Retrieve a subscription by its unique ID                          |
 | **POST**   | `/api/subscriptions`                           | Create a new subscription                                         |
@@ -388,6 +389,30 @@ The conversion uses the current stored subscription price and currency. The data
 ```
 
 Rates are fetched from `https://open.er-api.com/v6/latest/USD` and cached until the provider's `rateNextUpdate`. The first conversion request at or after that time fetches a fresh snapshot. The free feed refreshes once per day, not in real time. Conversions use USD-based cross rates and round the result to the target currency's standard minor-unit precision. Some enum codes (such as fund, metal, and special-purpose codes) are not provided with an exchange rate and return `422`. Responses include the provider attribution required by its open-access terms; clients displaying converted amounts must retain an attribution link to [ExchangeRate-API](https://www.exchangerate-api.com).
+
+---
+
+### 15. Get Monthly Subscription Totals
+
+* **URL:** `GET /api/subscriptions/monthly`
+* **Description:** Sums the prices of subscriptions whose renewal dates fall in the requested calendar month. Totals are grouped by currency; different currencies are not combined.
+* **Query Parameters:**
+  * `year` (integer)
+  * `month` (integer, between 1 and 12)
+* **Example:** `?year=2026&month=2`
+* **Response Status:** `200 OK`
+* **Response Body Example:**
+
+```json
+{
+  "year": 2026,
+  "month": 2,
+  "totalsByCurrency": {
+    "USD": 24.98,
+    "EUR": 7.50
+  }
+}
+```
 
 ---
 

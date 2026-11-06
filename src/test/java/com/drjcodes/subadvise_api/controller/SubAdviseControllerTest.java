@@ -27,6 +27,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import com.drjcodes.subadvise_api.dto.SubscriptionRequestDto;
 import com.drjcodes.subadvise_api.dto.CurrencyConversionResponseDto;
+import com.drjcodes.subadvise_api.dto.MonthlySubscriptionTotalDto;
 import com.drjcodes.subadvise_api.dto.SubscriptionCurrencyConversionResponseDto;
 import com.drjcodes.subadvise_api.dto.SubscriptionResponseDto;
 import com.drjcodes.subadvise_api.enums.Currency;
@@ -70,6 +71,28 @@ class SubAdviseControllerTest {
                                 .andExpect(jsonPath("$[0].subscriptionName").value("Streaming"));
 
                 verify(subscriptionService).searchSubscriptionsByName("Netflix");
+        }
+
+        @Test
+        void getsMonthlySubscriptionTotals() throws Exception {
+                MonthlySubscriptionTotalDto totals = new MonthlySubscriptionTotalDto();
+                totals.setYear(2025);
+                totals.setMonth(2);
+                totals.setTotalsByCurrency(java.util.Map.of(
+                                Currency.USD, new BigDecimal("15.00"),
+                                Currency.EUR, new BigDecimal("7.50")));
+                when(subscriptionService.getMonthlySubscriptionTotals(2025, 2)).thenReturn(totals);
+
+                mockMvc.perform(get("/api/subscriptions/monthly")
+                                .param("year", "2025")
+                                .param("month", "2"))
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$.year").value(2025))
+                                .andExpect(jsonPath("$.month").value(2))
+                                .andExpect(jsonPath("$.totalsByCurrency.USD").value(15.00))
+                                .andExpect(jsonPath("$.totalsByCurrency.EUR").value(7.50));
+
+                verify(subscriptionService).getMonthlySubscriptionTotals(2025, 2);
         }
 
         @Test

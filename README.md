@@ -83,7 +83,8 @@ Base URL: `http://localhost:7071/api/subscriptions`
 | -------- | -------------------------------------------------------------------------------------- | ---------------------------------------------- |
 | `GET` | `/api/health` | Check whether the API is available |
 | `GET`    | `/api/subscriptions`                                                                   | List subscriptions                             |
-| `GET`    | `/api/subscriptions/search?name=netflix`                                               | Search names by case-insensitive substring     |
+| `GET` | `/api/subscriptions/monthly?year=2026&month=2` | Sum prices for subscriptions renewing in the month, grouped by currency |
+| `GET` | `/api/subscriptions/search?name=netflix` | Search names by case-insensitive substring |
 | `GET`    | `/api/subscriptions/{id}`                                                              | Get a subscription; returns `404` if missing   |
 | `POST`   | `/api/subscriptions`                                                                   | Create a subscription                          |
 | `PATCH`  | `/api/subscriptions/{id}`                                                              | Partially update a subscription                |
@@ -120,6 +121,8 @@ Content-Type: application/json
 ```
 
 `currency` is required when creating a subscription and must be an uppercase code from the `Currency` enum in `src/main/java/com/drjcodes/subadvise_api/enums/Currency.java`. Enums are in the `enums` package and application exceptions are in the `exception` package. Subscription responses include the currency and a lowercase `color`. To choose the color, the API converts every saved subscription price to USD internally, then applies the shared expense-color thresholds to each subscription's percentage of the USD total. Prices are compared as stored; no monthly normalization is performed. Converted amounts and percentages are not returned. Because the color depends on all saved subscriptions, a missing ExchangeRate-API rate for any saved currency can prevent a subscription response (`422`); if current rates are unavailable, the response is `503`. For `PATCH`, omitted fields (including `currency`) are left unchanged. If changing currency with `PATCH`, provide a replacement `subscriptionPrice` too; use the conversion endpoint to convert the existing amount.
+
+`GET /api/subscriptions/monthly?year=2026&month=2` totals subscription prices for subscriptions with a renewal date in the requested calendar month. The response includes `year`, `month`, and `totalsByCurrency`; amounts in different currencies are not combined. `month` must be between 1 and 12.
 
 ## Expense API
 

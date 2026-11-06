@@ -15,8 +15,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.drjcodes.subadvise_api.dto.SubscriptionRequestDto;
+import com.drjcodes.subadvise_api.dto.MonthlySubscriptionTotalDto;
 import com.drjcodes.subadvise_api.dto.SubscriptionCurrencyConversionResponseDto;
+import com.drjcodes.subadvise_api.dto.SubscriptionRequestDto;
 import com.drjcodes.subadvise_api.dto.SubscriptionResponseDto;
 import com.drjcodes.subadvise_api.enums.Currency;
 import com.drjcodes.subadvise_api.service.SubscriptionCurrencyService;
@@ -39,6 +40,13 @@ public class SubscriptionController {
     @GetMapping
     public List<SubscriptionResponseDto> getAllSubscriptions() {
         return subscriptionService.getAllSubscriptions();
+    }
+
+    @GetMapping("/monthly")
+    public MonthlySubscriptionTotalDto getMonthlySubscriptionTotals(
+            @RequestParam int year,
+            @RequestParam int month) {
+        return subscriptionService.getMonthlySubscriptionTotals(year, month);
     }
 
     @GetMapping("/search")

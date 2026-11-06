@@ -20,6 +20,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import com.drjcodes.subadvise_api.dto.MonthlySubscriptionTotalDto;
 import com.drjcodes.subadvise_api.dto.SubscriptionRequestDto;
 import com.drjcodes.subadvise_api.dto.SubscriptionResponseDto;
 import com.drjcodes.subadvise_api.mapper.SubscriptionMapper;
@@ -268,6 +269,36 @@ class SubscriptionServiceTest {
     }
 
     @Test
+    void getMonthlySubscriptionTotalsSumsPricesSeparatelyByCurrency() {
+        Subscription usdOne = subscription("9.99", Currency.USD);
+        Subscription usdTwo = subscription("5.01", Currency.USD);
+        Subscription eur = subscription("7.50", Currency.EUR);
+        LocalDate startDate = LocalDate.of(2025, 2, 1);
+        LocalDate endDate = LocalDate.of(2025, 2, 28);
+        when(subscriptionRepository.findByRenewalDateBetween(startDate, endDate))
+                .thenReturn(List.of(usdOne, usdTwo, eur));
+
+        MonthlySubscriptionTotalDto result = subscriptionService.getMonthlySubscriptionTotals(2025, 2);
+
+        assertEquals(2025, result.getYear());
+        assertEquals(2, result.getMonth());
+        assertEquals(new BigDecimal("15.00"), result.getTotalsByCurrency().get(Currency.USD));
+        assertEquals(new BigDecimal("7.50"), result.getTotalsByCurrency().get(Currency.EUR));
+        verify(subscriptionRepository).findByRenewalDateBetween(startDate, endDate);
+    }
+
+    @Test
+    void getMonthlySubscriptionTotalsRejectsInvalidMonth() {
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> subscriptionService.getMonthlySubscriptionTotals(2025, 13));
+
+        assertEquals("month must be between 1 and 12", exception.getMessage());
+        verify(subscriptionRepository, never()).findByRenewalDateBetween(
+                org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.any());
+    }
+
+    @Test
     void getSubscriptionsBySubscriptionDateBetweenReturnsMappedResults() {
         LocalDate startDate = LocalDate.of(2025, 1, 1);
         LocalDate endDate = LocalDate.of(2025, 1, 31);
@@ -281,5 +312,12 @@ class SubscriptionServiceTest {
                 endDate);
 
         assertEquals(List.of(response), result);
+    }
+
+    private Subscription subscription(String price, Currency currency) {
+        return Subscription.builder()
+                .subscriptionPrice(new BigDecimal(price))
+                .currency(currency)
+                .build();
     }
 }

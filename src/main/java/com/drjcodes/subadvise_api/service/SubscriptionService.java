@@ -1,14 +1,20 @@
 package com.drjcodes.subadvise_api.service;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.drjcodes.subadvise_api.enums.Currency;
+import com.drjcodes.subadvise_api.dto.MonthlySubscriptionTotalDto;
 import com.drjcodes.subadvise_api.dto.SubscriptionRequestDto;
 import com.drjcodes.subadvise_api.dto.SubscriptionResponseDto;
 import com.drjcodes.subadvise_api.exception.SubscriptionNotFoundException;
@@ -102,6 +108,26 @@ public class SubscriptionService {
 
     public List<SubscriptionResponseDto> getSubscriptionsByRenewalDateBetween(LocalDate startDate, LocalDate endDate) {
         return toResponseDtos(subscriptionRepository.findByRenewalDateBetween(startDate, endDate));
+    }
+
+    public MonthlySubscriptionTotalDto getMonthlySubscriptionTotals(int year, int month) {
+        if (month < 1 || month > 12) {
+            throw new IllegalArgumentException("month must be between 1 and 12");
+        }
+
+        YearMonth yearMonth = YearMonth.of(year, month);
+        List<Subscription> subscriptions = subscriptionRepository.findByRenewalDateBetween(
+                yearMonth.atDay(1), yearMonth.atEndOfMonth());
+        Map<Currency, BigDecimal> totals = new EnumMap<>(Currency.class);
+        for (Subscription subscription : subscriptions) {
+            totals.merge(subscription.getCurrency(), subscription.getSubscriptionPrice(), BigDecimal::add);
+        }
+
+        MonthlySubscriptionTotalDto result = new MonthlySubscriptionTotalDto();
+        result.setYear(year);
+        result.setMonth(month);
+        result.setTotalsByCurrency(totals);
+        return result;
     }
 
     public List<SubscriptionResponseDto> getSubscriptionsBySubscriptionDateBetween(LocalDate startDate,
